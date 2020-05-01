@@ -1,0 +1,348 @@
+openapi: "3.0.1"
+info:
+  description: Documentation of the REST API for the Product Delivery
+  version: "0.0.1"
+  title: Product Delivery API
+
+
+# Paths supported by the server application
+
+paths:
+  /user/log:
+    post:
+      operationId: user.log
+      tags:
+        - user
+      summary: Returns token if valid.
+      description: Proccess of user loging.
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        '400':
+          description: Invalid email or password
+
+  /user/create:
+    post:
+      operationId: user.create
+      tags:
+        - user
+      summary: Create user.
+      description: Create user from sign up or from administrator UI.
+      parameters:
+        - in: header
+          name: permissions
+          description: What permissions are going to be given in the frontend to user. Owner manages that.
+          schema:
+            type: array
+            items:
+              type: string
+              example: editProducts
+        - in: header
+          name: menus
+          description: What menus are going to be showed in the frontend to user. Owner manages that.
+          schema:
+            type: array
+            items:
+              type: string
+              example: employees
+        - in: header
+          name: email
+          schema:
+            type: string
+            example: test@gmail.com
+        - in: header
+          name: name
+          schema:
+            type: string
+            example: Bob
+        - in: header
+          name: surname
+          schema:
+            type: string
+            example: Johnson
+        - in: header
+          name: bornDate
+          schema:
+            type: string
+            example: 2020-05-01T16:16:39.092Z
+        - in: header
+          name: password
+          schema:
+            type: string
+            example: testPassword
+        - in: header
+          name: addresses
+          description: Addresses where carry the order.
+          schema:
+            type: array
+            items:
+              type: string
+              example: juramento
+        - in: header
+          name: phoneNumbers
+          schema:
+            type: array
+            items:
+              type: string
+              example: 1533333333
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /products/get/list:
+    get:
+      operationId: products.getList
+      tags:
+        - products
+      summary: Returns list of available products.
+      description: Return description, stock and status of available products.
+      parameters:
+        - in: header
+          name: userToken
+          description: User token.
+          schema:
+            type: string
+            example: token
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /orders/get:
+    get:
+      operationId: user.getOrders
+      tags:
+        - order
+      summary: Returns token if valid.
+      description: Proccess of user loging.
+      parameters:
+        - in: header
+          name: userToken
+          description: User token.
+          schema:
+            type: string
+            example: token
+        - in: header
+          name: status
+          description: Filtered status. Do not pass a status is equal to return them all.
+          schema:
+            type: string
+            example: pending
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /orders/get/{id}:
+    get:
+      operationId: user.getOrderByID
+      tags:
+        - order
+      summary: Returns token if valid.
+      description: Proccess of user loging.
+      parameters:
+        - in: header
+          name: userToken
+          description: User token.
+          schema:
+            type: string
+            example: token
+        - in: path
+          required: true
+          name: id
+          description: ID of order
+          schema:
+            type: string
+            example: 2
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                  - orders
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Order"
+                  orders:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Item"
+                
+                
+
+  /orders/create:
+    post:
+      operationId: order.create
+      tags:
+        - user
+      summary: Returns token if valid.
+      description: Proccess of user loging.
+      parameters:
+        - in: header
+          name: status
+          description: Filtered status. Do not pass a status is equal to return them all.
+          schema:
+            type: string
+            example: test@gmail.com
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+components:
+  schemas:
+    User:
+      type: object
+      required:
+        - token
+        - permissions
+        - menus
+        - email
+        - name
+        - surname
+        - bornDate
+        - password
+        - addresses
+        - phoneNumbers
+      properties:
+        token:
+          type: integer
+          example: 718812
+        permissions:
+          type: integer
+          example: 718812
+        menus:
+          type: integer
+          example: 718812
+        email:
+          type: integer
+          example: 718812
+        name:
+          type: integer
+          example: 718812
+        surname:
+          type: integer
+          example: 718812
+        bornDate:
+          type: integer
+          example: 718812
+        password:
+          type: integer
+          example: 718812
+        addresses:
+          type: integer
+          example: 718812
+        phoneNumbers:
+          type: integer
+          example: 718812
+
+    Product:
+      type: object
+      required:
+        - id
+        - name
+        - type
+        - price
+        - additionalOptions
+        - description
+      properties:
+        id:
+          type: integer
+          example: 718812
+        name:
+          type: integer
+          example: 718812
+        type:
+          type: integer
+          example: 718812
+        price:
+          type: integer
+          example: 718812
+        additionalOptions:
+          type: integer
+          example: 718812
+        description:
+          type: integer
+          example: 718812
+        image:
+          type: integer
+          example: 718812
+
+    Item:
+      type: object
+      required:
+        - id
+        - creation
+        - deleteDay
+        - status
+      properties:
+        id:
+          type: integer
+          example: 718812
+        creation:
+          type: string
+          example: 718812
+        deleteDay:
+          type: string
+          example: 718812
+        status:
+          type: string
+          example: "inProcess"
+
+    Order:
+      type: object
+      required:
+        - id
+        - employeeOnCharge
+        - creation
+        - finish
+        - totalPrice
+        - items
+        - status
+      properties:
+        id:
+          type: integer
+          example: 718812
+        employeeOnCharge:
+          type: integer
+          example: 718812
+        creation:
+          type: integer
+          example: 718812
+        finish:
+          type: integer
+          example: 718812
+        totalPrice:
+          type: integer
+          example: 718812
+        items:
+          type: integer
+          example: 718812
+        status:
+          type: integer
+          example: 718812
+          
+        
