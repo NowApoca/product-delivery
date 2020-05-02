@@ -65,7 +65,7 @@ export default {
     show1: false,
     rules: {
       required: value => !!value || 'Required.',
-      min: v => !!v || v.length >= 8 || 'Min 8 characters'
+      min: v => v.length >= 8 || 'Min 8 characters'
     }
   })
 }
