@@ -40,7 +40,7 @@ const insertStrings = {
             "id" integer,\
             "product" integer,\
             "creation" date,\
-            "deleteDay" date,\
+            "finishDay" date,\
             "optionsSelected" varchar(64)[],\
             "status" varchar(64)\
         );',
@@ -48,7 +48,7 @@ const insertStrings = {
             "id"         integer,\
             "employeeOnCharge"    varchar(64)[],\
             "creation"         date,\
-            "finish"    date,\
+            "finishDay"    date,\
             "totalPrice"         integer,\
             "items"    int REFERENCES item (item_id) ON UPDATE CASCADE,\
             "status"         integer,\

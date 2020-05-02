@@ -77,7 +77,16 @@ async function modifyStatus(req, res){
             throw new Error(" Porque como usuario no podes hacer otra cosa que no sea cancelar")
         }
     }
-    await client.query("UPDATE order SET status = $1 WHERE id = $2", [newStatus, orders])
+    switch(newStatus){
+        case constants.isCanceled || constants.hasArrived:
+            await hasEnd(orders)
+        break;
+        case constants.hasDelivered:
+            await hasChange(orders)
+        break;
+        default:
+            throw new Error()
+    }
     res.status(200).json();
 }
 
@@ -113,6 +122,23 @@ async function assignEmployee(req, res){
     }
     await client.query("UPDATE order SET employee = $1 WHERE id = $2", [userInDB.rows[0].email, orderID])
     res.status(200).json();
+}
+
+async function hasEnd(orders){
+    const finishDay = new Date();
+    for(const orderID of orders){
+        const orderInDB = await client.query("SELECT items from order WHERE id = $1", [orderID]);
+        await client.query("UPDATE item SET (status, finishDay) VALUES ($1, $2) WHERE id = $3;", [constants.isCanceled, finishDay, orderInDB.rows[0].items],)
+        await client.query("UPDATE order SET (status, finishDay) VALUES ($1, $2) WHERE id = $3;", [constants.isCanceled, finishDay, orderID],)
+    }
+}
+
+async function hasChange(orders){
+    for(const orderID of orders){
+        const orderInDB = await client.query("SELECT items from order WHERE id = $1", [orderID]);
+        await client.query("UPDATE item SET status = $1 WHERE id = $2;", [constants.hasDelivered, orderInDB.rows[0].items],)
+        await client.query("UPDATE order SET status = $1 WHERE id = $2;", [constants.hasDelivered, orderID],)
+    }
 }
 
 module.exports = {
