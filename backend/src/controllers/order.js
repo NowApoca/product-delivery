@@ -117,5 +117,7 @@ async function assignEmployee(req, res){
 
 module.exports = {
     getOrders,
-    modifyStatus
+    modifyStatus,
+    create,
+    modifyOrder
 }
