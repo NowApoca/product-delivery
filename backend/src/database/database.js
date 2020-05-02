@@ -42,7 +42,7 @@ const insertStrings = {
             "creation" date,\
             "deleteDay" date,\
             "optionsSelected" varchar(64)[],\
-            "status" date\
+            "status" varchar(64)\
         );',
     order:'CREATE TABLE order (\
             "id"         integer,\
