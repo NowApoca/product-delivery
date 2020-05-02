@@ -6,7 +6,7 @@ const constants = require ("../config").constants;
 /**
  * 
  * @param {/product:
-    post:
+    get:
       operationId: products.getList
       tags:
         - products
@@ -19,6 +19,12 @@ const constants = require ("../config").constants;
           schema:
             type: string
             example: token
+        - in: header
+        name: filters
+        description: User token.
+        schema:
+          type: string
+          example: token
       responses:
         '200':
           description: Success
@@ -31,7 +37,7 @@ const constants = require ("../config").constants;
 
 async function create(req,res){
     const client = getClient();
-    const {token ,id } = res.locals;
+    const {token , filters } = res.locals;
     if((await client.query('SELECT id from product WHERE id = $1;',[id])).rows.length < 0){
         throw new Error({});
     }
@@ -43,4 +49,20 @@ async function create(req,res){
         });
     });
     res.status(200).json(products);
+}; 
+
+async function getList(req,res){
+  const client = getClient();
+  const {token , filters } = res.locals;
+  if((await client.query('SELECT id from product WHERE id = $1;',[id])).rows.length < 0){
+      throw new Error({});
+  }
+  const productsInDb = await client.query('SELECT id from product WHERE id=$1;',[id]);
+  const products =[];
+  productsInDb.rows.map((product,index)=>{
+      products.push({
+          product
+      });
+  });
+  res.status(200).json(products);
 }; 
