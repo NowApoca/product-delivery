@@ -32,7 +32,7 @@ async function modifyStatus(req, res){
     if(userInDB.rows.length == 0){
         throw new Error()
     }
-    if(userInDB.rows.permissions.indexOf(constants.changeOrderStatus) < 0){
+    if(userInDB.rows.permissions.indexOf(constants.modifyOrder) < 0){
         if(newStatus != constants.cancel){
             throw new Error(" Porque como usuario no podes hacer otra cosa que no sea cancelar")
         }
@@ -48,12 +48,11 @@ async function modifyOrder(req, res){
     if(userInDB.rows.length == 0){
         throw new Error();
     }
-    if(userInDB.rows.permissions.indexOf(constants.modifyWholeOrder) < 0){
+    if(userInDB.rows.permissions.indexOf(constants.modifyOrder) < 0){
         throw new Error("Porque como usuario no podes hacer otra cosa que no sea cancelar");
     }
-    await client.query("UPDATE order SET status = $1 AND  WHERE id = $2", [newStatus, orders])
+    await client.query("UPDATE order SET (employeeOnCharge, totalPrice, items, status, address) = $1  WHERE id = $2", [[newOrder.employeeOnCharge, newOrder.totalPrice, newOrder.items, newOrder.status, newOrder.address], id])
     res.status(200).json();
-    
 }
 
 module.exports = {
