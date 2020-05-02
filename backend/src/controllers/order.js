@@ -22,7 +22,34 @@ async function getOrders(req, res){
 }
 
 async function create(req, res){
-    
+    const client = getClient();
+    const {
+        token,
+        id,
+        employeeOnCharge,
+        finish,
+        totalPrice,
+        items,
+        status,
+        address,
+    };
+    const userInDB = await client.query('SELECT token from user WHERE token = $1;',[token]);
+    if(userInDB.rows.length ==0){
+        throw new Error({})
+    };
+    if(userInDB.rows[0].permissions.indexOf(constants.availableAccount)<0){
+        throw new Error({})
+    }
+    await client.query('INSERT INTO order (id,employeeOnCharge,finish,totalPrice,items,status,address) VALUES $1;',[
+        id,
+        employeeOnCharge,
+        finish,
+        totalPrice,
+        items,
+        status,
+        address,
+    ]);
+    res.status(200);
 }
 
 async function modifyStatus(req, res){
