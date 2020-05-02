@@ -95,6 +95,26 @@ async function modifyOrder(req, res){
     res.status(200).json();
 }
 
+async function assignEmployee(req, res){
+    const client = getClient();
+    const { orderID, token } = res.locals;
+    const userInDB = await client.query("SELECT email FROM user WHERE token = $1;", [token]);
+    if(userInDB.rows.length == 0){
+        throw new Error()
+    }
+    if(userInDB.rows.permissions.indexOf(constants.carryOrder) < 0){
+        if(newStatus != constants.cancel){
+            throw new Error("No podes llevar a cabo una orden")
+        }
+    }
+    const orderInDB = await client.query("SELECT id FROM order WHERE id = $1;", [orderID]);
+    if(orderInDB.rows.length == 0){
+        throw new Error()
+    }
+    await client.query("UPDATE order SET employee = $1 WHERE id = $2", [userInDB.rows[0].email, orderID])
+    res.status(200).json();
+}
+
 module.exports = {
     getOrders,
     modifyStatus
