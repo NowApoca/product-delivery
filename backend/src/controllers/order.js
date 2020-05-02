@@ -22,7 +22,18 @@ async function getOrders(req, res){
 }
 
 async function create(req, res){
-    
+    const client = getClient();
+    const {}
+    const {
+        id,
+        employeeOnCharge,
+        finish,
+        totalPrice,
+        items,
+        status,
+        address,
+    };
+    const userInDb = await client.query('SE')
 }
 
 async function modifyStatus(req, res){
