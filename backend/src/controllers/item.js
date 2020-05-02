@@ -26,7 +26,7 @@ async function modifyItem (req, res){
     if(userInDB.rows.length<0){
         throw new Error({})
     };
-    const itemStatus = await client.query('SELECT id FROM item where id = $1;',[items.id]);
+    const itemStatus = await client.query('SELECT status FROM item where id = $1;',[items.id]);
     if(userInDB.rows.status != constants.inProgress){
         throw new Error("Ya no es posible cambiar el item");
     };
