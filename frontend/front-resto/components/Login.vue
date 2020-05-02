@@ -39,7 +39,10 @@
     </v-form>
   </v-container>
 </template>
-<style scoped>
+<style>
+.theme--dark.v-label{
+  color:white!important;
+}
 .center{
   display: block;
   margin-left: auto;
