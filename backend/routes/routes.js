@@ -21,6 +21,7 @@ router.put("/order", noTenemosMiddleExportado, orderController.modifyOrder);
 router.put("/order/assign/employee", noTenemosMiddleExportado, orderController.assignEmployee);
 
 router.patch("/item", noTenemosMiddleExportado, item.modifyStatus);
+router.patch("/tiem,",noTenemosMiddleExportado,item.modifyItem);
 
 router.post("/user", noTenemosMiddleExportado, orderController.create);
 router.post("/user/log", noTenemosMiddleExportado, orderController.log);
