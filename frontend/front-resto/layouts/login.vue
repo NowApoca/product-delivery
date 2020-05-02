@@ -32,7 +32,7 @@
   background: rgba(245,245,245,0.8);;
 }
 .nuxt-dark-component{
-  background: rgba(174,174,174,0.8);
+  background: rgba(174,174,174,0.90);
 }
 .login{
   max-width: 35em;
