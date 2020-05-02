@@ -38,15 +38,17 @@ const insertStrings = {
         );',
     item:'CREATE TABLE item (\
             "id" integer,\
+            "product" integer,\
             "creation" date,\
             "deleteDay" date,\
+            "optionsSelected" varchar(64)[],\
             "status" date\
         );',
     order:'CREATE TABLE order (\
             "id"         integer,\
             "employeeOnCharge"    varchar(64)[],\
-            "creation"         integer,\
-            "finish"    varchar(64)[],\
+            "creation"         date,\
+            "finish"    date,\
             "totalPrice"         integer,\
             "items"    int REFERENCES item (item_id) ON UPDATE CASCADE,\
             "status"         integer,\

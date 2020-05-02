@@ -25,12 +25,7 @@ async function create(req, res){
     const client = getClient();
     const {
         token,
-        id,
-        employeeOnCharge,
-        finish,
-        totalPrice,
         items,
-        status,
         address,
     };
     const userInDB = await client.query('SELECT token from user WHERE token = $1;',[token]);
@@ -40,14 +35,32 @@ async function create(req, res){
     if(userInDB.rows[0].permissions.indexOf(constants.availableAccount)<0){
         throw new Error({})
     }
-    await client.query('INSERT INTO order (id,employeeOnCharge,finish,totalPrice,items,status,address) VALUES $1;',[
+    const employeeOnCharge = '';
+    const creation = new Date();
+    let totalPrice = 0;
+    const itemsToPush = [];
+    items.map(function(item){
+        totalPrice += item.price;
+        itemsToPush.push({
+            product: item.product,
+            creation: new Date(),
+            deleteDay: Infinity,
+            optionsSelected: item.optionsSelected,
+            status: constants.pendingToTake
+        })
+    })
+    const finish = Infinity;
+    const status = constants.initialStatus;
+    await client.query("INSERT INTO item (product, creation, deleteDay, optionsSelected, status) VALUE $1 ", itemsToPush())
+    await client.query('INSERT INTO order (employeeOnCharge,finish,totalPrice,items,status,address) VALUES $1;',[
         id,
         employeeOnCharge,
+        creation,
         finish,
         totalPrice,
         items,
         status,
-        address,
+        address
     ]);
     res.status(200);
 }
