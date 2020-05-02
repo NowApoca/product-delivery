@@ -47,7 +47,7 @@ async function create(req,res){
       image,
     } = res.locals;
     //check product id valid
-    if((await client.query('SELECT id from product WHERE product = $1;',[id])).rows.length>0){
+    if((await client.query('SELECT id from product WHERE id = $1;',[id])).rows.length > 0){
       throw new Error({})
     };
     //Create product
@@ -63,16 +63,10 @@ async function create(req,res){
     res.status(200);
 }; 
 
-
 async function getList(req,res){
   const client = getClient();
-  const {token , filters } = res.locals;
-  const userInDB = await client.query('SELECT email FROM user WHERE token = $1;',[token]);
-  if(userInDB.row.length<0){
-    throw new Error({})
-  };
-  //to review
-  const productsInDb = await client.query('SELECT * from product WHERE type=$1;',[filters.type]);
+  const { filters } = res.locals;
+  const productsInDb = await client.query('SELECT * from product WHERE $1;',[filters]);
   const products =[];
   productsInDb.rows.map((product,index)=>{
       products.push({
