@@ -1,8 +1,7 @@
 const express = require("express")
 const router = express.Router()
 const { 
-    middleWareQUeSeEjecutaSiempre,
-    noTenemosMiddleExportado
+    validateUserToken
     } = require("./middleware")
 
 const eventController = require("../src/controllers/event")
@@ -12,21 +11,21 @@ const productController = require("../src/controllers/product")
 const userController = require("../src/controllers/user")
 const itemController = require("../src/controllers/item")
 
-app.use(middleWareQUeSeEjecutaSiempre)
+app.use(validateUserToken)
 
-router.get("/order", noTenemosMiddleExportado, orderController.getOrders);
-router.post("/order", noTenemosMiddleExportado, orderController.create);
-router.patch("/order", noTenemosMiddleExportado, orderController.modifyStatus);
-router.put("/order", noTenemosMiddleExportado, orderController.modifyOrder);
-router.put("/order/assign/employee", noTenemosMiddleExportado, orderController.assignEmployee);
+router.get("/order", orderController.getOrders);
+router.post("/order", orderController.create);
+router.patch("/order/modify/status", orderController.modifyStatus);
+router.put("/order", orderController.modifyOrder);
+router.put("/order/assign/employee", orderController.assignEmployee);
 
-router.patch("/item", noTenemosMiddleExportado, item.modifyStatus);
-router.patch("/tiem,",noTenemosMiddleExportado,item.modifyItem);
+router.patch("/item", item.modifyStatus);
+router.patch("/item,",noTenemosMiddleExportado,item.modifyItem);
 
-router.post("/user", noTenemosMiddleExportado, orderController.create);
-router.post("/user/log", noTenemosMiddleExportado, orderController.log);
+router.post("/user", orderController.create);
+router.post("/user/log", orderController.log);
 
-router.get("/product", noTenemosMiddleExportado, orderController.getList);
-router.post("/product", noTenemosMiddleExportado, orderController.create);
+router.get("/product", orderController.getList);
+router.post("/product", orderController.create);
 
 module.exports = router
