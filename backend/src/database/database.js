@@ -34,7 +34,8 @@ const insertStrings = {
         "price" integer,\
         "additionalOptions" varchar(64)[],\
         "description" varchar(64),\
-        "image" varchar(64)\
+        "image" varchar(64),\
+        "token" varchar(64)\
         );',
     item:'CREATE TABLE item (\
             "id" integer,\

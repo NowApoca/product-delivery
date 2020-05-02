@@ -121,7 +121,7 @@ paths:
 
   /product:
     post:
-      operationId: products.getList
+      operationId: products.create
       tags:
         - products
       summary: Returns list of available products.
