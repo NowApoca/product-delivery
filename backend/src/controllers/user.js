@@ -17,6 +17,12 @@ async function create(req, res){
         addresses,
         phoneNumber
     } = res.locals;
+    /** Posible implementacion ante la igualdad de mails
+     * if(user == null || user.rows.length != 0){
+        res.status(400).json({ error: (user === null)? errors.databaseError: errors.userEmailExists, info: "Mail de usuario: " + userData.email});
+        return;
+    }
+     */
     if((await client.query('SELECT email from user WHERE email = $1;', [email] )).rows.length > 0){
         throw new Error({})
     }
