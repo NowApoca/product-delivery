@@ -10,12 +10,12 @@ async function initialize(settings){
         port: settings.port,
         host: settings.host,
     })
-    await createTables();
     client.connect()
+    await createTables();
 }
 
 const insertStrings = {
-    user:'CREATE TABLE user (\
+    enduser:'CREATE TABLE enduser (\
             "token" varchar(64),\
             "permissions" varchar(64)[],\
             "menus" varchar(64)[],\
@@ -28,7 +28,7 @@ const insertStrings = {
             "phoneNumber" varchar(64)\
         );',
     product:'CREATE TABLE product (\
-        "id" varchar(64),\
+        "product_id" varchar(64),\
         "name" varchar(64),\
         "type" varchar(64),\
         "price" integer,\
@@ -37,26 +37,27 @@ const insertStrings = {
         "image" varchar(64)\
         );',
     item:'CREATE TABLE item (\
-            "id" integer,\
+            "item_id" integer,\
             "product" integer,\
             "creation" date,\
             "finishDay" date,\
             "optionsSelected" varchar(64)[],\
             "status" varchar(64)\
         );',
-    order:'CREATE TABLE order (\
-            "id"         integer,\
+    bill:'CREATE TABLE bill (\
+            "bill_id"         integer,\
             "employeeOnCharge"    varchar(64)[],\
             "creation"         date,\
             "finishDay"    date,\
             "totalPrice"         integer,\
-            "items"    int REFERENCES item (item_id) ON UPDATE CASCADE,\
+            "items"    integer[],\
             "status"         integer,\
             "address"        varchar(64)\
         );'
 }
 
 async function createTables(){
+    const tables = Object.keys(insertStrings);
     const query = await client.query("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type= 'BASE TABLE' ;");
     for(const table of tables){
         const index = query.rows.findIndex(obj => obj.table_name === table);

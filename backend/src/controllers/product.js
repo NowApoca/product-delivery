@@ -1,5 +1,5 @@
-const getClient = require ("../database").getClient;
-const constants = require ("../config").constants;
+const getClient = require ("../database/database").getClient;
+const constants = require ("./config").constants;
 
 //operationId: products.create
 
@@ -76,3 +76,7 @@ async function getList(req,res){
   res.status(200).json(products);
 }; 
 
+module.exports = {
+  create,
+  getList
+}

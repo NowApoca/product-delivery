@@ -1,4 +1,4 @@
-const getClient = require("../database").getClient;
+const getClient = require("../database/database").getClient;
 const constants = require("./config").constants
 
 async function getOrders(req, res){
@@ -27,7 +27,7 @@ async function create(req, res){
         token,
         items,
         address,
-    };
+    } = res.locals;
     const userInDB = await client.query('SELECT token from user WHERE token = $1;',[token]);
     if(userInDB.rows.length ==0){
         throw new Error({})
@@ -145,5 +145,6 @@ module.exports = {
     getOrders,
     modifyStatus,
     create,
-    modifyOrder
+    modifyOrder,
+    assignEmployee
 }

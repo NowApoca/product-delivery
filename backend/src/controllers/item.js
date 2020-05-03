@@ -1,5 +1,5 @@
-const getClient = require ("../database").getClient;
-const constants = require ("../config").constants;
+const getClient = require ("../database/database").getClient;
+const constants = require ("./config").constants;
 
 async function modifyStatus(req, res){
     const client = getClient();
@@ -29,4 +29,9 @@ async function modifyItem (req, res){
     };
     await client.query("UPDATE item SET optionsSelected = $1 WHERE id = $2", [newOptions, id]);
     res.status(200).json();
+}
+
+module.exports = {
+    modifyStatus,
+    modifyItem
 }
