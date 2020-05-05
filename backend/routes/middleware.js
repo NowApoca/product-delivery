@@ -16,18 +16,19 @@ function validateUserToken(req, res, next){
 
 function verifyUserCreation (req,res,next){
     const { name, surname, email, password, bornDate, addresses, phoneNumber, permissions, menus  } = req.body.userData;
+    console.log(" ACA ", name, surname, email, password, bornDate, addresses, phoneNumber, permissions, menus)
     res.locals.user = {}
-    const checkNameError = isNotValidString(name,constants.nameMinLength,constants.nameMaxLength);
+    const checkNameError = isNotValidString(name, constants.nameMinLength, constants.nameMaxLength);
     if(checkNameError){
         res.status(400).json({error: checkNameError,info:"Nombre de usario: " + name});
         return;
     }
-    const checkSurnameError = isNotValidString(surname,constants.SurnameMinLength,constants.SurnameMaxLength);
+    const checkSurnameError = isNotValidString(surname, constants.nameMinLength, constants.nameMaxLength);
     if(checkSurnameError){
         res.status(400).json({error: checkSurnameError,info:"Apellido de usario: " + surname});
         return;
     }
-    const checkEmailError = isNotValidString(email,10,60);
+    const checkEmailError = isNotValidString(email, constants.emailMinLength, constants.emailMaxLength);
     if(checkEmailError){
         res.status(400).json({error: checkEmailError,info:"Mail de usario: " + email});
         return;
@@ -37,7 +38,7 @@ function verifyUserCreation (req,res,next){
         res.status(400).json({error: checkBornDateError,info:"Fecha de nacimiento: " + bornDate});
         return;
     }
-    const checkPasswordError = isNotValidString(password,constants.passwordMinLength,constants.passwordMaxLength);
+    const checkPasswordError = isNotValidString(password, constants.passwordMinLength, constants.passwordMaxLength);
     if(checkPasswordError){
         res.status(400).json({error: checkPasswordError, info:"Contraseña muy larga."});
         return;
@@ -48,7 +49,7 @@ function verifyUserCreation (req,res,next){
         return;
     }
     for(const address of addresses){
-        const checkAddressError = isNotValidString(address,constants.linkMinLength,constants.linkMaxLength);
+        const checkAddressError = isNotValidString(address, constants.linkMinLength, constants.linkMaxLength);
         if(checkAddressError){
             res.status(400).json({error: checkAddressError, info: "Dirección inválida: " + address });
             return;
@@ -89,6 +90,52 @@ function verifyUserCreation (req,res,next){
     res.locals.user.addresses = addresses.map((address) => { return sanitize(address) } );
     res.locals.user.permissions = permissions.map((permission) => { return sanitize(permission) } );
     res.locals.user.menus = menus.map((menu) => { return sanitize(menu) } );
+    next();
+}
+
+function verifyProductCreation (req,res,next){
+    const { id, name, type, price, additionalOptions, description, image } = req.body.productData;
+    const checkIdError = isNotValidString(id, constants.productIDMinLength,  constants.productIDMaxLength);
+    if(checkIdError){
+        res.status(400).json({error: checkIdError, info: id});
+        return;
+    }
+    const checkNameError = isNotValidString(name, constants.nameMinLength, constants.nameMaxLength);
+    if(checkNameError){
+        res.status(400).json({error: checkNameError, info: name});
+        return;
+    }
+    if(constants.productTypes.indexOf(type) < 0){
+        res.status(400).json({error: errors.productTypeNotExist, info: type });
+        return;
+    }
+    const checkPriceInt = isNotInt(price)
+    if(checkPriceInt){
+        res.status(400).json({error: errors.notValidInt, info: price });
+        return;
+    }
+    const checkDescriptionError = isNotValidString(description, constants.descriptionMinLength, constants.descriptionMaxLength);
+    if(checkDescriptionError){
+        res.status(400).json({error: checkDescriptionError, info: description});
+        return;
+    }
+    const checkImageError = isNotValidString(image, constants.linkMinLength, constants.linkMaxLength);
+    if(checkImageError){
+        res.status(400).json({error: checkImageError, info: image});
+        return;
+    }
+    if(!Array.isArray(additionalOptions) || additionalOptions.length != 0){
+        res.status(400).json({error: errors.notValidArray, info: additionalOptions});
+        return;
+    }
+    res.locals.product = {};
+    res.locals.product.id = sanitize(id);
+    res.locals.product.name = sanitize(name);
+    res.locals.product.type = sanitize(type);
+    res.locals.product.price = price;
+    res.locals.product.additionalOptions = additionalOptions;
+    res.locals.product.description = sanitize(description);
+    res.locals.product.image = sanitize(image);
     next();
 }
 
@@ -152,18 +199,45 @@ function isNotValidDate(date){
     }
   }
 
-  function isNotInt(value) {
-    // check also if string is valid number
+function isNotInt(value) {
     if(!isNaN(value) &&  parseInt(Number(value)) == value && !isNaN(parseInt(value, 10))){
       return;
     }
     return errors.notValidInt;
-  }
+}
   
+async function requireCreateProduct(req, res, next){
+    const { user } = res.locals;
+    if(user.permissions.indexOf(constants.permissions.createProduct) < 0){
+        res.status(400).json({error: errors.notAllowedUser, info: messages[errors.userInvalidLog]});
+        return;
+    }
+    next();
+}
+
+async function requireVerifyToken(req, res, next){
+    const { token } = req.body;
+    const checkValidToken = isNotValidString(token, constants.tokenMinLength,  constants.tokenMaxLength);
+    if(checkValidToken){
+        res.status(400).json({error: errors.notValidToken, info: messages[errors.userInvalidLog]});
+        return;
+    }
+    const client = getClient();
+    const userDB = await client.query("SELECT* from enduser WHERE token = $1;",[
+        token
+    ]);
+    if(userDB.rows.length == 0){
+        res.status(400).json({error: errors.notValidToken, info: messages[errors.userInvalidLog]});
+        return;
+    }
+    res.locals.user = userDB.rows[0];
+    next();
+}
 
 module.exports = {
     validateUserToken,
     verifyUserCreation,
+    verifyProductCreation,
     verifyUserAuthentication,
     verifyUserExist,
     requireSuccessLog,
@@ -171,4 +245,6 @@ module.exports = {
     isNotValidDate,
     isNotValidString,
     isNotInt,
+    requireCreateProduct,
+    requireVerifyToken
 }

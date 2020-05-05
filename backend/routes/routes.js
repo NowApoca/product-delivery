@@ -2,9 +2,12 @@ const express = require("express")
 const router = express.Router()
 const { 
     verifyUserCreation,
+    verifyProductCreation,
     verifyUserAuthentication,
     verifyUserExist,
     requireSuccessLog,
+    requireCreateProduct,
+    requireVerifyToken
     } = require("./middleware")
 
 const eventController = require("../src/controllers/event")
@@ -26,6 +29,6 @@ router.post("/user", verifyUserCreation, userController.create);
 router.post("/user/log", verifyUserAuthentication, verifyUserExist, requireSuccessLog, userController.log);
 
 router.get("/product", productController.getList);
-router.post("/product", productController.create);
+router.post("/product", requireVerifyToken, requireCreateProduct, verifyProductCreation, productController.create);
 
 module.exports = router

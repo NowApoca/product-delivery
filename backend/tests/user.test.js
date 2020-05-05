@@ -19,7 +19,7 @@ let client = new Client({
 client.connect()
 
 describe(" User Testing", () => {
-    it("Create user", async () => {
+    xit("Create user", async () => {
         const email = uuid() + "@gmail.com";
         const newUser =  {
             permissions: [constants.permissions.availableLog],
@@ -48,7 +48,7 @@ describe(" User Testing", () => {
         expect(newUserDB[0].phoneNumber).toEqual(newUser.phoneNumber)
     });
 
-    it("Create user duplicated email", async () => {
+    xit("Create user duplicated email", async () => {
         const email = uuid() + "@gmail.com";
         const newUser =  {
             permissions: [constants.permissions.availableLog],
@@ -79,7 +79,7 @@ describe(" User Testing", () => {
         expect(resultCreateUser2.info).toEqual(messages[resultCreateUser2.error] + email)
     });
 
-    it("Log user", async () => {
+    xit("Log user", async () => {
         const email = uuid() + "@gmail.com";
         const newUser =  {
             permissions: [constants.permissions.availableLog],
@@ -117,10 +117,20 @@ describe(" User Testing", () => {
             type: constants.productTypes[0],
             price: 6,
             additionalOptions: [],
-            description: "Test product",
-            image: "" 
+            description: "Test product description",
+            image: "image of the product"
         };
-        const resultCreateUser = await post(settings.url + settings.port + "/product", {product: newProduct})
-        expect(resultCreateUser.data.error).toEqual(errors.noError)
+        const resultCreateProduction = await post(settings.url + settings.port + "/product", {productData: newProduct, token: resultLogUser.data.token})
+        expect(resultCreateProduction.data.error).toEqual(errors.noError)
+        const productDB = await client.query("SELECT* from product WHERE product_id = $1;",[
+            productID 
+        ])
+        expect(productDB.rows[0].product_id).toEqual(productID)
+        expect(productDB.rows[0].name).toEqual(newProduct.name)
+        expect(productDB.rows[0].type).toEqual(newProduct.type)
+        expect(productDB.rows[0].price).toEqual(newProduct.price)
+        expect(productDB.rows[0].additionalOptions).toEqual(newProduct.additionalOptions)
+        expect(productDB.rows[0].description).toEqual(newProduct.description)
+        expect(productDB.rows[0].image).toEqual(newProduct.image)
     });
 })

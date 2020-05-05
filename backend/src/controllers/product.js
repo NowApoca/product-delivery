@@ -1,5 +1,6 @@
-const getClient = require ("../database/database").getClient;
-const constants = require ("./config").constants;
+const getClient = require("../database/database").getClient;
+const constants = require("./config").constants;
+const {errors} = require("../common/errors")
 
 async function create(req,res){
     const client = getClient();
@@ -11,13 +12,11 @@ async function create(req,res){
       additionalOptions,
       description,
       image,
-    } = res.locals;
-    //check product id valid
-    if((await client.query('SELECT id from product WHERE id = $1;',[id])).rows.length > 0){
+    } = res.locals.product;
+    if((await client.query('SELECT product_id from product WHERE product_id = $1;',[id])).rows.length > 0){
       throw new Error({})
     };
-    //Create product
-    await client.query('INSERTO INTO product (id,name,type,price,additionalOptions,description,image) VALUES $1;',[
+    await client.query('INSERT INTO product (product_id,name,type,price,"additionalOptions",description,image) VALUES ($1,$2,$3,$4,$5,$6,$7);',[
       id,
       name,
       type,
@@ -26,7 +25,7 @@ async function create(req,res){
       description,
       image
     ]);
-    res.status(200);
+    res.status(200).json({error: errors.noError});
 }; 
 
 async function getList(req,res){
