@@ -1,95 +1,140 @@
 const constants = require("../constants")
-const errors = require("../src/common/errors")
+const {errors, messages} = require("../src/common/errors")
+const sanitize = require("sanitizer").sanitize
+const getClient = require("../src/database/database").getClient
+const bcrypt = require("bcrypt");
 
 function validateUserToken(req, res, next){
     const { token } = req.headers;
     const isValidID = isNotValidString(token , constants.tokenLength, constants.tokenLength)
     if(isValidID){
-        res.status(400).json({error: errors.isNotValidToken})
+        res.status(400).json({error: errors.isNotValidToken, info: "Token: " + token})
         return;
     }
     next();
 }
 
 function verifyUserCreation (req,res,next){
-    const userData = req.body.userData;
-    //Name check
-    const checkName = isNotValidString(userData.name,constants.NameMinLength,constants.NameMaxLength);
-    if(checkName == errors.stringNotValidLength){
-        res.status(400).json({error: errors.stringNotValidLength,info:"Nombre de usario: " + userData.name});
+    const { name, surname, email, password, bornDate, addresses, phoneNumber, permissions, menus  } = req.body.userData;
+    res.locals.user = {}
+    const checkNameError = isNotValidString(name,constants.nameMinLength,constants.nameMaxLength);
+    if(checkNameError){
+        res.status(400).json({error: checkNameError,info:"Nombre de usario: " + name});
         return;
     }
-    if(checkName == errors.stringNotValidType){
-        res.status(400).json({error: errors.stringNotValidType,info : "Nombre de usuario: " + userData.name});
+    const checkSurnameError = isNotValidString(surname,constants.SurnameMinLength,constants.SurnameMaxLength);
+    if(checkSurnameError){
+        res.status(400).json({error: checkSurnameError,info:"Apellido de usario: " + surname});
         return;
     }
-    //surname check
-    const checkSurname = isNotValidString(userData.surname,constants.SurnameMinLength,constants.SurnameMaxLength);
-    if(checkSurname == errors.stringNotValidLength){
-        res.status(400).json({error: errors.stringNotValidLength,info:"Apellido de usario: " + userData.surname});
+    const checkEmailError = isNotValidString(email,10,60);
+    if(checkEmailError){
+        res.status(400).json({error: checkEmailError,info:"Mail de usario: " + email});
         return;
     }
-    if(checkSurname == errors.stringNotValidType){
-        res.status(400).json({error: errors.stringNotValidType,info : "Apellido de usuario: " + userData.surname});
+    const checkBornDateError = isNotValidDate(bornDate);
+    if(checkBornDateError){
+        res.status(400).json({error: checkBornDateError,info:"Fecha de nacimiento: " + bornDate});
         return;
     }
-    //email
-    const checkEmail = isNotValidString(userData.email,10,60);
-    if(checkEmail == errors.stringNotValidLength){
-        res.status(400).json({error: errors.stringNotValidLength,info:"Mail de usario: " + userData.email});
+    const checkPasswordError = isNotValidString(password,constants.passwordMinLength,constants.passwordMaxLength);
+    if(checkPasswordError){
+        res.status(400).json({error: checkPasswordError, info:"Contraseña muy larga."});
         return;
     }
-    if(checkEmail == errors.stringNotValidType){
-        res.status(400).json({error: errors.stringNotValidType,info : "Mail de usuario: " + userData.email});
+    const checkAddressesError = Array.isArray(addresses);
+    if(!checkAddressesError){
+        res.status(400).json({error: errors.notValidArray,info:"Direcciones de usario: " + adresses});
         return;
     }
-    //bornDate
-    const checkBornDate = isNotValidDate(userData.bornDate);
-    if(checkBornDate == errors.dateNotValid){
-        res.status(400).json({error:errors.dateNotValid,info:"Fecha de nacimiento: " + userData.bornDate});
-        return;
+    for(const address of addresses){
+        const checkAddressError = isNotValidString(address,constants.linkMinLength,constants.linkMaxLength);
+        if(checkAddressError){
+            res.status(400).json({error: checkAddressError, info: "Dirección inválida: " + address });
+            return;
+        }
     }
-    //password
-    const checkPassword = isNotValidString(userData.password,constants.PasswordMinLength,constants.PasswordMaxLength);
-    if(checkPassword == errors.stringNotValidLength){
-        res.status(400).json({error: errors.stringNotValidLength,info:"Password de usario: " + userData.password});
-        return;
-    }
-    if(checkPassword == errors.stringNotValidType){
-        res.status(400).json({error: errors.stringNotValidType,info : "Password de usuario: " + userData.password});
-        return;
-    }
-    //Addresses
-    const checkAddresses = isNotValidString(userData.adresses,10,60);
-    if(checkAddresses == errors.stringNotValidLength){
-        res.status(400).json({error: errors.stringNotValidLength,info:"Direccion  de usario: " + userData.adresses});
-        return;
-    }
-    if(checkAddresses == errors.stringNotValidType){
-        res.status(400).json({error: errors.stringNotValidType,info : "Direccion de usuario: " + userData.addresses});
-        return;
-    }
-    //Phone Number
-    const checkPhoneNumber = isNotInt(userdata.phoneNumber);
+    const checkPhoneNumber = isNotInt(phoneNumber);
     if(checkPhoneNumber == errors.notValidInt){
-        res.status(400).json({error:errors.notValidInt,info:"Numero de telefono de usuario: " + userdata.phoneNumber});
+        res.status(400).json({error:errors.notValidInt,info:"Numero de telefono de usuario: " + phoneNumber});
     }
-    //Permissions
-    //Menus
-    res.locals.userData = userData;
+    const checkPermissionsError = Array.isArray(permissions);
+    if(!checkPermissionsError){
+        res.status(400).json({error: errors.notValidArray,info:"Direcciones de usario: " + adresses});
+        return;
+    }
+    for(const permission of permissions){
+        if(constants.permissions[permission] < 0){
+            res.status(400).json({error: errors.permissionNotExist, info: "Permiso inválido: " + permission });
+            return;
+        }
+    }
+    const checkMenusError = Array.isArray(menus);
+    if(!checkMenusError){
+        res.status(400).json({error: errors.notValidArray,info:"Direcciones de usario: " + adresses});
+        return;
+    }
+    for(const menu of menus){
+        if(constants.menus[menu] < 0){
+            res.status(400).json({error: error.menuNotExist, info: "Menú inválido: " + menu });
+            return;
+        }
+    }
+    res.locals.user.name = sanitize(name);
+    res.locals.user.surname = sanitize(surname);
+    res.locals.user.email = sanitize(email);
+    res.locals.user.bornDate = bornDate;
+    res.locals.user.password = sanitize(password);
+    res.locals.user.phoneNumber = sanitize(phoneNumber);
+    res.locals.user.addresses = addresses.map((address) => { return sanitize(address) } );
+    res.locals.user.permissions = permissions.map((permission) => { return sanitize(permission) } );
+    res.locals.user.menus = menus.map((menu) => { return sanitize(menu) } );
     next();
 }
 
-/*function verifyUserLog (req,res,next){
-    const userLog = req.body.userLog;
-    const checkPassword = isNotValidString (userLog.password,constants.PasswordMinLength,PasswordMaxLength);
-    const checkPassword = isNotValidString(userData.password,constants.PasswordMinLength,constants.PasswordMaxLength);
-    if(checkPassword == errors.stringNotValidType || checkPassword == errors.stringNotValidLength){
-        res.status(400).json({error: checkPassword,info:"Contraseña invalida"});
+function verifyUserAuthentication(req,res,next){
+    const {email, password} = req.body;
+    const checkPassword = isNotValidString (password, constants.passwordMinLength, constants.passwordMaxLength);
+    if(checkPassword){
+        res.status(400).json({error: checkPassword, info: messages[checkPassword]});
         return;
     }
-}*/
+    const checkEmail = isNotValidString (email, constants.emailMinLength, constants.emailMaxLength);
+    if(checkEmail){
+        res.status(400).json({error: checkEmail, info: messages[checkEmail] + email});
+        return;
+    }
+    res.locals.password = sanitize(password);
+    res.locals.email = sanitize(email);
+    next()
+}
 
+async function verifyUserExist(req, res, next){
+    const { email } = res.locals;
+    const client = getClient()
+    const userDB = await client.query("SELECT* from enduser WHERE email = $1;",[
+        email
+    ]);
+    if(userDB.rows.length == 0){
+        res.status(400).json({error: errors.userInvalidLog, info: messages[errors.userInvalidLog]});
+        return;
+    }
+    res.locals.user = userDB.rows[0];
+    next();
+}
+
+async function requireSuccessLog(req,res,next){
+    const {email, password, user} = res.locals;
+    if(!(await isValidPassword(password, user.password))){
+        res.status(400).json({error: errors.userInvalidLog, info: messages[errors.userInvalidLog]});
+        return;
+    }
+    next();
+}
+
+async function isValidPassword(password, passwordHashed){
+    return await bcrypt.compare(password, passwordHashed)
+}
 
 function isNotValidString(stringValue, min, max){
   if(typeof stringValue !== 'string' && !(stringValue instanceof String)){
@@ -119,6 +164,10 @@ function isNotValidDate(date){
 module.exports = {
     validateUserToken,
     verifyUserCreation,
+    verifyUserAuthentication,
+    verifyUserExist,
+    requireSuccessLog,
+    isValidPassword,
     isNotValidDate,
     isNotValidString,
     isNotInt,

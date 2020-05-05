@@ -1,7 +1,10 @@
 const express = require("express")
 const router = express.Router()
 const { 
-    validateUserToken
+    verifyUserCreation,
+    verifyUserAuthentication,
+    verifyUserExist,
+    requireSuccessLog,
     } = require("./middleware")
 
 const eventController = require("../src/controllers/event")
@@ -19,8 +22,8 @@ router.put("/order/assign/employee", orderController.assignEmployee);
 router.patch("/item", itemController.modifyStatus);
 router.patch("/item,",itemController.modifyItem);
 
-router.post("/user", userController.create);
-router.post("/user/log", userController.log);
+router.post("/user", verifyUserCreation, userController.create);
+router.post("/user/log", verifyUserAuthentication, verifyUserExist, requireSuccessLog, userController.log);
 
 router.get("/product", productController.getList);
 router.post("/product", productController.create);

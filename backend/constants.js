@@ -4,6 +4,20 @@ module.exports = {
     NameMinLength : 2,
     SurnameMaxLength: 50,
     SurnameMinLength: 2,
-    PasswordMinLength: 8,
-    PasswordMaxLength: 30,
+    passwordMinLength: 2,
+    passwordMaxLength: 60,
+    emailMinLength: 8,
+    emailMaxLength: 60,
+    linkMinLength: 1,
+    linkMaxLength: 100,
+    permissions: {
+        availableLog: "available",
+        createProduct: "createProduct"
+    },
+    menus: {
+        customer: "customer"
+    },
+    productTypes: [
+        "food"
+    ]
 }

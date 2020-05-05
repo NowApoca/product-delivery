@@ -1,0 +1,19 @@
+{
+    "dbConfig":{
+        "user": "zehn",
+        "password": "zehn1234",
+        "host": "127.0.0.1",
+        "database": "productdelivery",
+        "port": 5432
+    },
+    "port": 3004,
+    "admin": {
+        "email" : "admin@gmail.com",
+        "name" : "Test",
+        "surname" : "Surtest",
+        "bornDate" : "1998-12-12",
+        "password" : "test",
+        "addresses" : [],
+        "phoneNumber" : 16237455
+    }
+}

@@ -1,6 +1,5 @@
 const errors = {
     noError: -1,
-    isNotValidToken: 1,
     // permissions
     notModifyOrderPermission: 10, 
     notCreateProductPermission: 11,
@@ -14,6 +13,17 @@ const errors = {
     stringNotValidType:81,
     dateNotValid:82,
     notValidInt: 83,
+    isNotValidToken: 84,
+    notValidArray: 85,
+    permissionNotExist: 86,
+    menuNotExist: 87
 }
 
-module.exports = errors
+const messages = {
+    "23": "La dirección de correo ingresada ya existe: "
+}
+
+module.exports = {
+    errors,
+    messages
+}

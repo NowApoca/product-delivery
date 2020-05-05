@@ -1,5 +1,5 @@
 const getClient = require("../database/database").getClient
-
+const {messages} = require("./errors")
 
 function handleErrorAsync(asyncRouteHandler) {
     const client = getClient()
@@ -8,11 +8,12 @@ function handleErrorAsync(asyncRouteHandler) {
     try{
         await asyncRouteHandler(req, res, next)
     }catch(e){
+        const errorMessage = JSON.parse(e.message);
         await client.query("ROLLBACK")
-        if(e.status === undefined){
+        if(errorMessage.status === undefined){
             res.status(400).json({ error: e.stack, info: e})
         }else{
-            res.status(e.status).json({ error: e.error, info: e.info})
+            res.status(errorMessage.status).json({ error: errorMessage.error, info: messages[errorMessage.error] + errorMessage.info})
         }
         return;
     }
