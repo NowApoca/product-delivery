@@ -18,6 +18,7 @@ module.exports = {
     descriptionMaxLength: 500,
     permissions: {
         availableLog: "available",
+        createOrder: "createOrder",
         createProduct: "createProduct"
     },
     menus: {
@@ -25,5 +26,12 @@ module.exports = {
     },
     productTypes: [
         "food"
-    ]
+    ],
+    pendingToTake: "pending",
+    productionTypes: {
+        onDemand: "onDemand"
+    },
+    orderStatus: {
+        initialStatus: 'initialStatus'
+    }
 }

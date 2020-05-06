@@ -9,6 +9,9 @@ const errors = {
     userInvalidLogIn: 22,
     userMailAlreadyExist: 23,
     productTypeNotExist: 30,
+    productNotExist: 31,
+    productAmountNotAllowed: 32,
+    productionTypeNotExist: 33,
     //General errors
     stringNotValidLength:80,
     stringNotValidType:81,

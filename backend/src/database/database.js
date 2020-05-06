@@ -33,27 +33,31 @@ const insertStrings = {
         "product_id" varchar(64),\
         "name" varchar(64),\
         "type" varchar(64),\
+        production_type varchar(64),\
         "price" integer,\
+        allowed_amount integer,\
         "additionalOptions" varchar(64)[],\
         "description" varchar(64),\
         "image" varchar(64)\
         );',
     item:'CREATE TABLE item (\
-            "item_id" integer,\
-            "product" integer,\
+            "item_id" varchar(64),\
+            "product" varchar(64),\
+            "price" integer,\
             "creation" date,\
             "finishDay" date,\
             "optionsSelected" varchar(64)[],\
             "status" varchar(64)\
         );',
     bill:'CREATE TABLE bill (\
-            "bill_id"         integer,\
+            "bill_id"         varchar(64),\
+            "user_email"         varchar(64),\
             "employeeOnCharge"    varchar(64)[],\
             "creation"         date,\
             "finishDay"    date,\
             "totalPrice"         integer,\
-            "items"    integer[],\
-            "status"         integer,\
+            "items"    varchar(64)[],\
+            "status"         varchar(64),\
             "address"        varchar(64)\
         );'
 }

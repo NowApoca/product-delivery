@@ -3,10 +3,13 @@ const router = express.Router()
 const { 
     verifyUserCreation,
     verifyProductCreation,
+    verifyItems,
+    verifyAddress,
     verifyUserAuthentication,
     verifyUserExist,
     requireSuccessLog,
     requireCreateProduct,
+    requireCreateOrder,
     requireVerifyToken,
     validateFilters
     } = require("./middleware")
@@ -18,7 +21,7 @@ const productController = require("../src/controllers/product")
 const userController = require("../src/controllers/user")
 
 router.get("/order", orderController.getOrders);
-router.post("/order", orderController.create);
+router.post("/order", requireVerifyToken, requireCreateOrder, verifyItems, verifyAddress, orderController.create);
 router.patch("/order/modify/status", orderController.modifyStatus);
 router.put("/order", orderController.modifyOrder);
 router.put("/order/assign/employee", orderController.assignEmployee);

@@ -94,7 +94,7 @@ function verifyUserCreation (req,res,next){
 }
 
 function verifyProductCreation (req,res,next){
-    const { id, name, type, price, additionalOptions, description, image } = req.body.productData;
+    const { id, name, type, price, allowed_amount, additionalOptions, production_type, description, image } = req.body.productData;
     const checkIdError = isNotValidString(id, constants.productIDMinLength,  constants.productIDMaxLength);
     if(checkIdError){
         res.status(400).json({error: checkIdError, info: id});
@@ -109,9 +109,18 @@ function verifyProductCreation (req,res,next){
         res.status(400).json({error: errors.productTypeNotExist, info: type });
         return;
     }
+    if(constants.productionTypes[production_type] === undefined ){
+        res.status(400).json({error: errors.productionTypeNotExist, info: type });
+        return;
+    }
     const checkPriceInt = isNotInt(price)
     if(checkPriceInt){
         res.status(400).json({error: errors.notValidInt, info: price });
+        return;
+    }
+    const checkAllowedAmountInt = isNotInt(allowed_amount)
+    if(checkAllowedAmountInt){
+        res.status(400).json({error: errors.notValidInt, info: allowed_amount });
         return;
     }
     const checkDescriptionError = isNotValidString(description, constants.descriptionMinLength, constants.descriptionMaxLength);
@@ -132,11 +141,60 @@ function verifyProductCreation (req,res,next){
     res.locals.product.id = sanitize(id);
     res.locals.product.name = sanitize(name);
     res.locals.product.type = sanitize(type);
+    res.locals.product.production_type = sanitize(production_type);
     res.locals.product.price = price;
+    res.locals.product.allowed_amount = allowed_amount;
     res.locals.product.additionalOptions = additionalOptions;
     res.locals.product.description = sanitize(description);
     res.locals.product.image = sanitize(image);
     next();
+}
+
+async function verifyItems(req, res, next){
+    const { items } = req.body.orderData
+    const client = getClient();
+    const validatedProducts = [];
+    const notValidatedProducts = [];
+    await Promise.all(items.map( async (item) =>{
+        const productInDB = await client.query("SELECT product_id, price, production_type, allowed_amount from product WHERE product_id = $1;",[
+            item.product_id
+        ])
+        if(productInDB.rows.length == 0){
+            notValidatedProducts.push({error: errors.productNotExist, info: item});
+            return;
+        }
+        if(isNotInt(item.amount)){
+            notValidatedProducts.push({error: errors.notValidInt, info: item});
+            return
+        }
+        if(item.amount > productInDB.rows[0].allowed_amount){
+            notValidatedProducts.push({error: errors.productAmountNotAllowed, info: item});
+            return
+        }
+        if(!Array.isArray(item.optionsSelected) && item.optionsSelected.length > 0){
+            notValidatedProducts.push({error: errors.notValidArray, info: item});
+            return
+        }
+        console.log(productInDB.rows[0])
+        item.price = productInDB.rows[0].price
+        item.production_type = productInDB.rows[0].production_type
+        validatedProducts.push(item);
+    })) 
+    res.locals.order = {};
+    res.locals.order.items = validatedProducts;
+    res.locals.order.notValidItems = notValidatedProducts;
+    next()
+}
+
+function verifyAddress(req, res, next){
+    const { address } = req.body.orderData;
+    const checkAddressError = isNotValidString(address, constants.linkMinLength, constants.linkMaxLength);
+    if(checkAddressError){
+        res.status(400).json({error: checkAddressError, info: address});
+        return;
+    }
+    res.locals.order.address = sanitize(address);
+    next()
 }
 
 function verifyUserAuthentication(req,res,next){
@@ -214,6 +272,15 @@ async function requireCreateProduct(req, res, next){
     }
     next();
 }
+  
+async function requireCreateOrder(req, res, next){
+    const { user } = res.locals;
+    if(user.permissions.indexOf(constants.permissions.createOrder) < 0){
+        res.status(400).json({error: errors.notAllowedUser, info: messages[errors.userInvalidLog]});
+        return;
+    }
+    next();
+}
 
 async function requireVerifyToken(req, res, next){
     const { token } = req.body;
@@ -254,6 +321,8 @@ module.exports = {
     validateUserToken,
     verifyUserCreation,
     verifyProductCreation,
+    verifyItems,
+    verifyAddress,
     verifyUserAuthentication,
     verifyUserExist,
     requireSuccessLog,
@@ -262,6 +331,7 @@ module.exports = {
     isNotValidString,
     isNotInt,
     requireCreateProduct,
+    requireCreateOrder,
     requireVerifyToken,
     validateFilters
 }

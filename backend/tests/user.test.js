@@ -116,7 +116,9 @@ describe(" User Testing", () => {
             name: productName,
             type: constants.productTypes[0],
             price: 6,
+            allowed_amount: 3,
             additionalOptions: [],
+            production_type: constants.productionTypes.onDemand,
             description: "Test product description",
             image: "image of the product"
         };
@@ -134,7 +136,7 @@ describe(" User Testing", () => {
         expect(productDB.rows[0].image).toEqual(newProduct.image)
     });
 
-    it("Create a product and get products filter by none", async () => {
+    xit("Create a product and get products filter by none", async () => {
         const resultLogUser = await post(settings.url + settings.port + "/user/log", {
             email: config.admin.email,
             password: config.admin.password
@@ -148,7 +150,9 @@ describe(" User Testing", () => {
             name: productName,
             type: constants.productTypes[0],
             price: 6,
+            allowed_amount: 3,
             additionalOptions: [],
+            production_type: constants.productionTypes.onDemand,
             description: "Test product description",
             image: "image of the product"
         };
@@ -166,5 +170,63 @@ describe(" User Testing", () => {
         expect(productDB.rows[0].image).toEqual(newProduct.image)
         const resultGetProduction = await get(settings.url + settings.port + "/product", {headers: {filters: JSON.stringify([{column: "product_id", value: productID}])} })
         expect(resultGetProduction.data[0].product_id).toEqual(productID)
+    });
+
+    it("Create a product and get products filter by none and make an order bill", async () => {
+        const resultLogUser = await post(settings.url + settings.port + "/user/log", {
+            email: config.admin.email,
+            password: config.admin.password
+        })
+        expect(resultLogUser.data.user.email).toEqual(config.admin.email)
+        expect(resultLogUser.data.token.length).toEqual(36)
+        const productID = uuid();
+        const productName = uuid();
+        const newProduct =  {
+            id: productID,
+            name: productName,
+            type: constants.productTypes[0],
+            price: 6,
+            allowed_amount: 3,
+            additionalOptions: [],
+            production_type: constants.productionTypes.onDemand,
+            description: "Test product description",
+            image: "image of the product"
+        };
+        const resultCreateProducte = await post(settings.url + settings.port + "/product", {productData: newProduct, token: resultLogUser.data.token})
+        expect(resultCreateProducte.data.error).toEqual(errors.noError)
+        const productDB = await client.query("SELECT* from product WHERE product_id = $1;",[
+            productID 
+        ])
+        expect(productDB.rows[0].product_id).toEqual(productID)
+        expect(productDB.rows[0].name).toEqual(newProduct.name)
+        expect(productDB.rows[0].type).toEqual(newProduct.type)
+        expect(productDB.rows[0].price).toEqual(newProduct.price)
+        expect(productDB.rows[0].additionalOptions).toEqual(newProduct.additionalOptions)
+        expect(productDB.rows[0].description).toEqual(newProduct.description)
+        expect(productDB.rows[0].image).toEqual(newProduct.image)
+        const resultGetProduction = await get(settings.url + settings.port + "/product", {headers: {filters: JSON.stringify([{column: "product_id", value: productID}])} })
+        expect(resultGetProduction.data[0].product_id).toEqual(productID);
+        const newOrder =  {
+            items: [{product_id: productID, amount: 1, optionsSelected: []}],
+            address: "address test link"
+        };
+        const resultCreateOrder = await post(settings.url + settings.port + "/order", {orderData: newOrder, token: resultLogUser.data.token})
+        expect(resultCreateOrder.data.error).toEqual(errors.noError)
+        const orderDB = await client.query("SELECT* from bill WHERE bill_id = $1;",[
+            resultCreateOrder.data.bill_id
+        ])
+        expect(orderDB.rows.length).toEqual(1)
+        expect(orderDB.rows[0].bill_id).toEqual(resultCreateOrder.data.bill_id)
+        expect(orderDB.rows[0].user_email).toEqual(config.admin.email)
+        expect(orderDB.rows[0].employeeOnCharge).toEqual([])
+        expect(orderDB.rows[0].finishDay).toEqual(Infinity)
+        expect(orderDB.rows[0].totalPrice).toEqual(newProduct.price)
+        expect(orderDB.rows[0].items.length).toEqual(1)
+        expect(orderDB.rows[0].status).toEqual(constants.orderStatus.initialStatus)
+        expect(orderDB.rows[0].address).toEqual(newOrder.address)
+        const itemDB = await client.query("SELECT* from item WHERE item_id = $1;",[
+            orderDB.rows[0].items[0]
+        ])
+        expect(itemDB.rows[0].product).toEqual(productID)
     });
 })
