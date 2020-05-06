@@ -64,5 +64,6 @@ function normalizeUser(user){
 module.exports = {
     create: handleErrorAsync(create),
     log: handleErrorAsync(log),
-    hashPassword
+    hashPassword,
+    normalizeUser
 }

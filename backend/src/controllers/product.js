@@ -1,5 +1,5 @@
 const getClient = require("../database/database").getClient;
-const constants = require("./config").constants;
+const {getFilterQuery} = require("../common/common");
 const {errors} = require("../common/errors")
 
 async function create(req,res){
@@ -31,15 +31,16 @@ async function create(req,res){
 async function getList(req,res){
   const client = getClient();
   const { filters } = res.locals;
-  const productsInDb = await client.query('SELECT * from product WHERE $1;',[filters]);
+  const {query, values} = getFilterQuery(filters, "product")
+  console.log(query)
+  const productsInDb = await client.query(query, values);
   const products =[];
   productsInDb.rows.map((product,index)=>{
-      products.push({
-          product
-      });
+    products.push(product);
   });
+  console.log(products)
   res.status(200).json(products);
-}; 
+};
 
 module.exports = {
   create,

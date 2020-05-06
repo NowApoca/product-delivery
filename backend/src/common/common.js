@@ -21,6 +21,27 @@ function handleErrorAsync(asyncRouteHandler) {
 	};
 }
 
+function getFilterQuery(filters, table){
+    let query = "SELECT* from "+ table;
+    const filterLength = filters.length;
+    const values = [];
+    if(filters.length > 0){
+      query += " WHERE "
+    }
+    filters.map((filter, index) => {
+      query += '"' + filter.column + '" = $' + (index + 1) 
+      if(filterLength != index + 1){
+        query += " AND "
+      }
+      values.push(filter.value)
+    })
+    query += ";";
+    return {
+        query,
+        values};
+}
+
 module.exports = {
-    handleErrorAsync
+    handleErrorAsync,
+    getFilterQuery
 }

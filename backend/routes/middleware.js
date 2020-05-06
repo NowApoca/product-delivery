@@ -234,6 +234,22 @@ async function requireVerifyToken(req, res, next){
     next();
 }
 
+async function validateFilters(req, res, next){
+    const { filters } = req.headers;
+    const filtersFromHeader = JSON.parse(filters)
+    const processedFilters = [];
+    filtersFromHeader.map((filter) => {
+        if(filter.column && filter.value){
+            processedFilters.push({
+                column: filter.column,
+                value: filter.value
+            })
+        }
+    });
+    res.locals.filters = processedFilters;
+    next();
+}
+
 module.exports = {
     validateUserToken,
     verifyUserCreation,
@@ -246,5 +262,6 @@ module.exports = {
     isNotValidString,
     isNotInt,
     requireCreateProduct,
-    requireVerifyToken
+    requireVerifyToken,
+    validateFilters
 }

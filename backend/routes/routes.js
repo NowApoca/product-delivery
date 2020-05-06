@@ -7,7 +7,8 @@ const {
     verifyUserExist,
     requireSuccessLog,
     requireCreateProduct,
-    requireVerifyToken
+    requireVerifyToken,
+    validateFilters
     } = require("./middleware")
 
 const eventController = require("../src/controllers/event")
@@ -28,7 +29,7 @@ router.patch("/item,",itemController.modifyItem);
 router.post("/user", verifyUserCreation, userController.create);
 router.post("/user/log", verifyUserAuthentication, verifyUserExist, requireSuccessLog, userController.log);
 
-router.get("/product", productController.getList);
+router.get("/product", validateFilters, productController.getList);
 router.post("/product", requireVerifyToken, requireCreateProduct, verifyProductCreation, productController.create);
 
 module.exports = router

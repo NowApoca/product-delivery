@@ -4,8 +4,8 @@ async function post(url, data){
     return axios.post(url, data);
 }
 
-async function get(url){
-    return axios.get(url);
+async function get(url, headers){
+    return axios.get(url, headers);
 }
 
 async function handleAsyncError(func){

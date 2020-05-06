@@ -102,7 +102,7 @@ describe(" User Testing", () => {
         expect(resultLogUser.data.token.length).toEqual(36)
     });
 
-    it("Create a product", async () => {
+    xit("Create a product", async () => {
         const resultLogUser = await post(settings.url + settings.port + "/user/log", {
             email: config.admin.email,
             password: config.admin.password
@@ -132,5 +132,39 @@ describe(" User Testing", () => {
         expect(productDB.rows[0].additionalOptions).toEqual(newProduct.additionalOptions)
         expect(productDB.rows[0].description).toEqual(newProduct.description)
         expect(productDB.rows[0].image).toEqual(newProduct.image)
+    });
+
+    it("Create a product and get products filter by none", async () => {
+        const resultLogUser = await post(settings.url + settings.port + "/user/log", {
+            email: config.admin.email,
+            password: config.admin.password
+        })
+        expect(resultLogUser.data.user.email).toEqual(config.admin.email)
+        expect(resultLogUser.data.token.length).toEqual(36)
+        const productID = uuid();
+        const productName = uuid();
+        const newProduct =  {
+            id: productID,
+            name: productName,
+            type: constants.productTypes[0],
+            price: 6,
+            additionalOptions: [],
+            description: "Test product description",
+            image: "image of the product"
+        };
+        const resultCreateProduction = await post(settings.url + settings.port + "/product", {productData: newProduct, token: resultLogUser.data.token})
+        expect(resultCreateProduction.data.error).toEqual(errors.noError)
+        const productDB = await client.query("SELECT* from product WHERE product_id = $1;",[
+            productID 
+        ])
+        expect(productDB.rows[0].product_id).toEqual(productID)
+        expect(productDB.rows[0].name).toEqual(newProduct.name)
+        expect(productDB.rows[0].type).toEqual(newProduct.type)
+        expect(productDB.rows[0].price).toEqual(newProduct.price)
+        expect(productDB.rows[0].additionalOptions).toEqual(newProduct.additionalOptions)
+        expect(productDB.rows[0].description).toEqual(newProduct.description)
+        expect(productDB.rows[0].image).toEqual(newProduct.image)
+        const resultGetProduction = await get(settings.url + settings.port + "/product", {headers: {filters: JSON.stringify([{column: "product_id", value: productID}])} })
+        expect(resultGetProduction.data[0].product_id).toEqual(productID)
     });
 })
