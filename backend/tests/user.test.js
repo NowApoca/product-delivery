@@ -172,7 +172,7 @@ describe(" User Testing", () => {
         expect(resultGetProduction.data[0].product_id).toEqual(productID)
     });
 
-    it("Create a product and get products filter by none and make an order bill", async () => {
+    xit("Create a product and get products filter by none and make an order bill", async () => {
         const resultLogUser = await post(settings.url + settings.port + "/user/log", {
             email: config.admin.email,
             password: config.admin.password
@@ -228,5 +228,59 @@ describe(" User Testing", () => {
             orderDB.rows[0].items[0]
         ])
         expect(itemDB.rows[0].product).toEqual(productID)
+    });
+    //Error tests
+    it('Create user wrong nameType',async()=>{
+        const email = uuid() + "@gmail.com";
+        const newUser =  {
+            permissions: [constants.permissions.availableLog],
+            menus: [constants.menus.customer],
+            email,
+            name: 1,
+            surname: "TEST",
+            bornDate: new Date(),
+            password: uuid(),
+            addresses: [],
+            phoneNumber: 1245252,
+        };
+        const resultCreateUser = await handleAsyncError( post(settings.url + settings.port + "/user", {userData:newUser}));
+        expect(resultCreateUser.error).toEqual(errors.stringNotValidType);
+        expect(resultCreateUser.info).toEqual("Nombre de usario: " + newUser.name);
+    });
+    
+    it('Create user invalid min length',async () =>{
+        const email = uuid() + "@gmail.com";
+        const newUser = {
+            permissions: [constants.permissions.availableLog],
+            menus: [constants.menus.customer],
+            email,
+            name: "a",
+            surname: "TEST",
+            bornDate: new Date(),
+            password: uuid(),
+            addresses: [],
+            phoneNumber: 1245252
+        };
+        const resultCreateUser = await handleAsyncError( post(settings.url + settings.port + "/user", {userData:newUser}));
+        expect(resultCreateUser.error).toEqual(errors.stringNotValidLength);
+        expect(resultCreateUser.info).toEqual("Nombre de usario: " + newUser.name);
+    });
+
+    xit('Create user invalid max length',async () =>{
+        const email = uuid() + "@gmail.com";
+        const newUser = {
+            permissions: [constants.permissions.availableLog],
+            menus: [constants.menus.customer],
+            email,
+            name: "",
+            surname: "TEST",
+            bornDate: new Date(),
+            password: uuid(),
+            addresses: [],
+            phoneNumber: 1245252
+        };
+        const resultCreateUser = await handleAsyncError( post(settings.url + settings.port + "/user", {userData:newUser}));
+        expect(resultCreateUser.error).toEqual(errors.stringNotValidLength);
+        expect(resultCreateUser.info).toEqual("Nombre de usario: " + userData.name);
     });
 })

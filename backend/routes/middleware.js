@@ -61,7 +61,7 @@ function verifyUserCreation (req,res,next){
     }
     const checkPermissionsError = Array.isArray(permissions);
     if(!checkPermissionsError){
-        res.status(400).json({error: errors.notValidArray,info:"Direcciones de usario: " + adresses});
+        res.status(400).json({error: errors.notValidArray,info:"Permisos de usario: " + adresses});
         return;
     }
     for(const permission of permissions){
@@ -72,7 +72,7 @@ function verifyUserCreation (req,res,next){
     }
     const checkMenusError = Array.isArray(menus);
     if(!checkMenusError){
-        res.status(400).json({error: errors.notValidArray,info:"Direcciones de usario: " + adresses});
+        res.status(400).json({error: errors.notValidArray,info:"Menus de usario: " + adresses});
         return;
     }
     for(const menu of menus){
