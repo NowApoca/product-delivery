@@ -17,8 +17,19 @@ async function handleAsyncError(func){
     }
 }
 
+function getStringWithnLength (n){
+    var a = "";
+    if(a.length<n){
+        while(a.length<n){
+            a += "j";
+        }
+    }
+    return a;
+}
+
 module.exports = {
     post,
     get,
-    handleAsyncError
+    handleAsyncError,
+    getStringWithnLength,
 }

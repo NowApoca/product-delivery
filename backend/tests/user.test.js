@@ -7,6 +7,7 @@ const settings = require("./settings")
 const fs = require("fs")
 const config = JSON.parse(fs.readFileSync(__dirname + "/../config.json"))
 const {errors, messages} = require("../src/common/errors")
+const common = require ('./common');
 
 let client = new Client({
     user: settings.dbConfig.user,
@@ -266,13 +267,14 @@ describe(" User Testing", () => {
         expect(resultCreateUser.info).toEqual("Nombre de usario: " + newUser.name);
     });
 
-    xit('Create user invalid max length',async () =>{
+    it('Create user invalid max length',async () =>{
         const email = uuid() + "@gmail.com";
+        const nameEr = common.getStringWithnLength(75);
         const newUser = {
             permissions: [constants.permissions.availableLog],
             menus: [constants.menus.customer],
             email,
-            name: "",
+            name: nameEr,
             surname: "TEST",
             bornDate: new Date(),
             password: uuid(),
@@ -281,6 +283,81 @@ describe(" User Testing", () => {
         };
         const resultCreateUser = await handleAsyncError( post(settings.url + settings.port + "/user", {userData:newUser}));
         expect(resultCreateUser.error).toEqual(errors.stringNotValidLength);
-        expect(resultCreateUser.info).toEqual("Nombre de usario: " + userData.name);
+        expect(resultCreateUser.info).toEqual("Nombre de usario: " + newUser.name);
     });
+
+    it('User creation invalid surname type',async()=>{
+        const email = uuid() + "@gmail.com";
+        const newUser = {
+            permissions: [constants.permissions.availableLog],
+            menus: [constants.menus.customer],
+            email,
+            name: 'UNIT2',
+            surname: 1,
+            bornDate: new Date(),
+            password: uuid(),
+            addresses: [],
+            phoneNumber: 1245252
+        };
+        const resultCreateUser = await handleAsyncError( post(settings.url + settings.port + "/user", {userData:newUser}));
+        expect(resultCreateUser.error).toEqual(errors.stringNotValidType);
+        expect(resultCreateUser.info).toEqual("Apellido de usario: " + newUser.surname);
+    });
+
+    it('User creation invalid surname min length',async()=>{
+        const email = uuid() + "@gmail.com";
+        const newUser = {
+            permissions: [constants.permissions.availableLog],
+            menus: [constants.menus.customer],
+            email,
+            name: 'UNIT2',
+            surname: 'a',
+            bornDate: new Date(),
+            password: uuid(),
+            addresses: [],
+            phoneNumber: 1245252
+        };
+        const resultCreateUser = await handleAsyncError( post(settings.url + settings.port + "/user", {userData:newUser}));
+        expect(resultCreateUser.error).toEqual(errors.stringNotValidLength);
+        expect(resultCreateUser.info).toEqual("Apellido de usario: " + newUser.surname);
+    });
+
+    it('User creation invalid surname max length',async()=>{
+        const email = uuid() + "@gmail.com";
+        const surnameErr = common.getStringWithnLength(75);
+        const newUser = {
+            permissions: [constants.permissions.availableLog],
+            menus: [constants.menus.customer],
+            email,
+            name: 'UNIT2',
+            surname: surnameErr,
+            bornDate: new Date(),
+            password: uuid(),
+            addresses: [],
+            phoneNumber: 1245252
+        };
+        const resultCreateUser = await handleAsyncError( post(settings.url + settings.port + "/user", {userData:newUser}));
+        expect(resultCreateUser.error).toEqual(errors.stringNotValidLength);
+        expect(resultCreateUser.info).toEqual("Apellido de usario: " + newUser.surname);
+    });
+
+    it('Create user invalid bornDate',async()=>{
+        const email = uuid() + "@gmail.com";
+        const surnameErr = common.getStringWithnLength(75);
+        const newUser = {
+            permissions: [constants.permissions.availableLog],
+            menus: [constants.menus.customer],
+            email,
+            name: 'UNIT2',
+            surname: 'TEST',
+            bornDate: 'errror',
+            password: uuid(),
+            addresses: [],
+            phoneNumber: 1245252
+        };
+        const resultCreateUser = await handleAsyncError( post(settings.url + settings.port + "/user", {userData:newUser}));
+        expect(resultCreateUser.error).toEqual(errors.dateNotValid);
+        expect(resultCreateUser.info).toEqual("Fecha de nacimiento: " + newUser.bornDate);
+    });
+    xit('Create User phonenumber invalid')
 })
