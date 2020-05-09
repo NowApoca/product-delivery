@@ -20,7 +20,7 @@ let client = new Client({
 client.connect()
 
 describe(" User Testing", () => {
-    xit("Create user", async () => {
+    it("Create user", async () => {
         const email = uuid() + "@gmail.com";
         const newUser =  {
             permissions: [constants.permissions.availableLog],
@@ -253,7 +253,7 @@ describe(" User Testing", () => {
         ])
         expect(itemDB.rows[0].product).toEqual(productID)
     });
-    //Error tests
+
     it('Create user wrong nameType',async()=>{
         const email = uuid() + "@gmail.com";
         const newUser =  {
