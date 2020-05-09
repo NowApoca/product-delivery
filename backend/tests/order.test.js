@@ -19,7 +19,7 @@ let client = new Client({
 
 client.connect()
 describe(" Order Testing", () => {
-    it('Get order invalid token',async()=>{
+   /* it('Get order invalid token',async()=>{
         const email = uuid() + "@gmail.com";
         const newUser =  {
             permissions: [constants.permissions.availableLog],
@@ -43,5 +43,5 @@ describe(" Order Testing", () => {
         const tokenErr = "error";
         const userInDB = await client.query("SELECT email FROM user WHERE token = $1;", [tokenErr]);
         expect(userInDB.error).toEqual(errors.InvalidToken);
-    });
+    });*/
 });
