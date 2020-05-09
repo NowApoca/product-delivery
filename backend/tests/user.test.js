@@ -359,5 +359,99 @@ describe(" User Testing", () => {
         expect(resultCreateUser.error).toEqual(errors.dateNotValid);
         expect(resultCreateUser.info).toEqual("Fecha de nacimiento: " + newUser.bornDate);
     });
-    xit('Create User phonenumber invalid')
+    it('Create User phone number invalid',async()=>{
+        const email = uuid() + "@gmail.com";
+        const newUser = {
+            permissions: [constants.permissions.availableLog],
+            menus: [constants.menus.customer],
+            email,
+            name: 'UNIT2',
+            surname: 'TEST',
+            bornDate: new Date(),
+            password: uuid(),
+            addresses: [],
+            phoneNumber: "not a number",
+        };
+        const resultCreateUser = await handleAsyncError( post(settings.url + settings.port + "/user", {userData:newUser}));
+        expect(resultCreateUser.error).toEqual(errors.notValidInt);
+        expect(resultCreateUser.info).toEqual("Numero de telefono de usuario: " + newUser.phoneNumber);
+    });
+
+    it('Create user invalid password min length',async()=>{
+        const email = uuid() + "@gmail.com";
+        const newUser = {
+            permissions: [constants.permissions.availableLog],
+            menus: [constants.menus.customer],
+            email,
+            name: 'UNIT2',
+            surname: 'TEST',
+            bornDate: new Date(),
+            password: "1",
+            addresses: [],
+            phoneNumber: 123456,
+        };
+        const resultCreateUser = await handleAsyncError( post(settings.url + settings.port + "/user", {userData:newUser}));
+        expect(resultCreateUser.error).toEqual(errors.stringNotValidLength);
+        expect(resultCreateUser.info).toEqual("Contraseña muy larga o muy corta");
+    });
+
+    it('Create user invalid password max length',async()=>{
+        const email = uuid() + "@gmail.com";
+        const psErr = common.getStringWithnLength(89);
+        const newUser = {
+            permissions: [constants.permissions.availableLog],
+            menus: [constants.menus.customer],
+            email,
+            name: 'UNIT2',
+            surname: 'TEST',
+            bornDate: new Date(),
+            password: psErr,
+            addresses: [],
+            phoneNumber: 123456,
+        };
+        const resultCreateUser = await handleAsyncError( post(settings.url + settings.port + "/user", {userData:newUser}));
+        expect(resultCreateUser.error).toEqual(errors.stringNotValidLength);
+        expect(resultCreateUser.info).toEqual("Contraseña muy larga o muy corta");
+    });
+
+    it('Create user invalid permissions not an array',async()=>{
+        const email = uuid() + "@gmail.com";
+        const newUser = {
+            permissions: 12,
+            menus: [constants.menus.customer],
+            email,
+            name: 'UNIT2',
+            surname: 'TEST',
+            bornDate: new Date(),
+            password: uuid(),
+            addresses: [],
+            phoneNumber: 123456,
+        };
+        const resultCreateUser = await handleAsyncError( post(settings.url + settings.port + "/user", {userData:newUser}));
+        expect(resultCreateUser.error).toEqual(errors.notValidArray);
+        expect(resultCreateUser.info).toEqual("Permisos de usario: " + newUser.permissions);
+    });
+
+    it('Create user invalid type of permission',async()=>{
+        const email = uuid() + "@gmail.com";
+        const newUser = {
+            permissions: ["not a valid permission"],
+            menus: [constants.menus.customer],
+            email,
+            name: 'UNIT2',
+            surname: 'TEST',
+            bornDate: new Date(),
+            password: uuid(),
+            addresses: [],
+            phoneNumber: 123456,
+        };
+        const resultCreateUser = await handleAsyncError( post(settings.url + settings.port + "/user", {userData:newUser}));
+        expect(resultCreateUser.error).toEqual(errors.permissionNotExist);
+        expect(resultCreateUser.info).toEqual("Permiso inválido: " + newUser.permissions);
+    });
+
+    xit('Create user invalid menu not an array',async()=>{
+
+    });
+
 })

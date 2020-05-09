@@ -40,7 +40,7 @@ function verifyUserCreation (req,res,next){
     }
     const checkPasswordError = isNotValidString(password, constants.passwordMinLength, constants.passwordMaxLength);
     if(checkPasswordError){
-        res.status(400).json({error: checkPasswordError, info:"Contraseña muy larga."});
+        res.status(400).json({error: checkPasswordError, info:"Contraseña muy larga o muy corta"});
         return;
     }
     const checkAddressesError = Array.isArray(addresses);
@@ -61,11 +61,13 @@ function verifyUserCreation (req,res,next){
     }
     const checkPermissionsError = Array.isArray(permissions);
     if(!checkPermissionsError){
-        res.status(400).json({error: errors.notValidArray,info:"Permisos de usario: " + adresses});
+        res.status(400).json({error: errors.notValidArray,info:"Permisos de usario: " + permissions});
         return;
     }
     for(const permission of permissions){
-        if(constants.permissions[permission] < 0){
+        console.log('HA');
+        if(permissions.indexOf(constants.permissions[permission])  < 0){
+            console.log("GUA");
             res.status(400).json({error: errors.permissionNotExist, info: "Permiso inválido: " + permission });
             return;
         }
