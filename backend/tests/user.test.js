@@ -103,6 +103,27 @@ describe(" User Testing", () => {
         expect(resultLogUser.data.token.length).toEqual(36)
     });
 
+    /*it('Log user invalid email',async()=>{
+    const email  = "aasd@gmail.com";
+    const newUser =  {
+            permissions: [constants.permissions.availableLog],
+            menus: [constants.menus.customer],
+            email,
+            name: "UNIT",
+            surname: "TEST",
+            bornDate: new Date(),
+            password: uuid(),
+            addresses: [],
+            phoneNumber: 1245252
+    };
+    const resultCreateUser = await post(settings.url + settings.port + "/user", {userData: newUser})
+    expect(resultPostUser.password.length).toEqual(8)
+    });*/
+
+    /*it('Log user invalid password',async()=>{
+
+    });*/
+
     xit("Create a product", async () => {
         const resultLogUser = await post(settings.url + settings.port + "/user/log", {
             email: config.admin.email,
@@ -484,6 +505,5 @@ describe(" User Testing", () => {
         const resultCreateUser = await (common.handleAsyncError (post(settings.url + settings.port + "/user", {userData: newUser})));
         expect(resultCreateUser.error).toEqual(errors.notValidArray);
         expect(resultCreateUser.info).toEqual("Menus de usario: " + newUser.menus);
-    }); Terminar*/
-    
+    }); Terminar*/    
 });

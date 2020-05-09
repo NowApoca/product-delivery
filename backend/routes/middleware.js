@@ -65,7 +65,7 @@ function verifyUserCreation (req,res,next){
         return;
     }
     for(const permission of permissions){
-        //ver esto
+        //Ver esto
         if(constants.permissions[permission]  < 0){
             res.status(400).json({error: errors.permissionNotExist, info: "Permiso inválido: " + permission });
             return;
