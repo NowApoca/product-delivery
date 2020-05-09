@@ -80,7 +80,7 @@ describe(" User Testing", () => {
         expect(resultCreateUser2.info).toEqual(messages[resultCreateUser2.error] + email)
     });
 
-    xit("Log user", async () => {
+    it("Log user", async () => {
         const email = uuid() + "@gmail.com";
         const newUser =  {
             permissions: [constants.permissions.availableLog],
@@ -103,9 +103,9 @@ describe(" User Testing", () => {
         expect(resultLogUser.data.token.length).toEqual(36)
     });
 
-    /*it('Log user invalid email',async()=>{
-    const email  = "aasd@gmail.com";
-    const newUser =  {
+    /*it('Log user invalid password',async()=>{
+        const email = uuid() + "@gmail.com";
+        const newUser =  {
             permissions: [constants.permissions.availableLog],
             menus: [constants.menus.customer],
             email,
@@ -115,13 +115,15 @@ describe(" User Testing", () => {
             password: uuid(),
             addresses: [],
             phoneNumber: 1245252
-    };
-    const resultCreateUser = await post(settings.url + settings.port + "/user", {userData: newUser})
-    expect(resultPostUser.password.length).toEqual(8)
-    });*/
-
-    /*it('Log user invalid password',async()=>{
-
+        };
+        const resultCreateUser = await post(settings.url + settings.port + "/user", {userData: newUser})
+        expect(resultCreateUser.data.error).toEqual(errors.noError)
+        const resultLogUserError = await handleAsyncError (post(settings.url + settings.port + "/user/log", {
+            email,
+            password: "1",
+        }));
+        //expect(resultLogUserError.data.user.email).toEqual(email)
+        expect(resultLogUserError.error).toEqual(errors.userInvalidLog);
     });*/
 
     xit("Create a product", async () => {

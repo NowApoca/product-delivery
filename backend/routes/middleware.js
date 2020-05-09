@@ -232,7 +232,7 @@ async function verifyUserExist(req, res, next){
 async function requireSuccessLog(req,res,next){
     const {email, password, user} = res.locals;
     if(!(await isValidPassword(password, user.password))){
-        res.status(400).json({error: errors.userInvalidLog, info: messages[errors.userInvalidLog]});
+        res.status(400).json({error: errors.userInvalidLogIn, info: messages[errors.userInvalidLogIn]});
         return;
     }
     next();
