@@ -65,16 +65,15 @@ function verifyUserCreation (req,res,next){
         return;
     }
     for(const permission of permissions){
-        console.log('HA');
-        if(permissions.indexOf(constants.permissions[permission])  < 0){
-            console.log("GUA");
+        //ver esto
+        if(constants.permissions[permission]  < 0){
             res.status(400).json({error: errors.permissionNotExist, info: "Permiso inválido: " + permission });
             return;
         }
     }
     const checkMenusError = Array.isArray(menus);
     if(!checkMenusError){
-        res.status(400).json({error: errors.notValidArray,info:"Menus de usario: " + adresses});
+        res.status(400).json({error: errors.notValidArray,info:"Menus de usario: " + menus});
         return;
     }
     for(const menu of menus){
